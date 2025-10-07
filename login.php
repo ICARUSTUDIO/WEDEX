@@ -171,7 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyCkUx4Zz4xKu1HyISfnw_pEBMGBDVbdCZw",
+            apiKey: "",
             authDomain: "wedex-health-990e3.firebaseapp.com",
             projectId: "wedex-health-990e3",
             storageBucket: "wedex-health-990e3.firebasestorage.app",
