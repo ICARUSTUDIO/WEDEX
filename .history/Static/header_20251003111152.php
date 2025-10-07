@@ -1,0 +1,91 @@
+<?php
+// This file assumes config.php has been included on the page that requires it.
+// So, the $pdo variable for database connection is available here.
+
+// Fetch categories for the navigation dropdown
+try {
+    $nav_categories_stmt = $pdo->query("SELECT DISTINCT category FROM products ORDER BY category ASC LIMIT 5");
+    $nav_categories = $nav_categories_stmt->fetchAll(PDO::FETCH_COLUMN);
+} catch (PDOException $e) {
+    $nav_categories = []; // Default to empty array on error to prevent site crash
+}
+
+// Calculate total number of items in the cart from the session
+$cart_item_count = 0;
+if (!empty($_SESSION['cart'])) {
+    foreach ($_SESSION['cart'] as $item) {
+        $cart_item_count += $item['quantity'];
+    }
+}
+?>
+
+<header class="bg-white shadow-md sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4">
+        <div class="flex items-center justify-between">
+            <!-- Logo -->
+            <a href="index.php" class="flex items-center space-x-2">
+                <img class="w-28 h-auto md:w-32 mr-[-40px] ml-[-40px]" src="images/Blue_Logo.png" alt="WEDEX Logo">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">WEDEX</h1>
+                    <p class="text-xs text-gray-500">Healthcare Services</p>
+                </div>
+            </a>
+
+            <!-- Search Bar - Corrected -->
+            <div class="hidden md:flex flex-1 max-w-2xl mx-8">
+                <form class="w-full flex" action="shop.php" method="GET">
+                    <input 
+                        type="text" 
+                        name="search"
+                        placeholder="Search for medical supplies, equipment..." 
+                        class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                        value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>"
+                    >
+                    <button type="submit" class="bg-teal-600 text-white px-6 py-3 rounded-r-lg hover:bg-teal-700 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Header Actions -->
+            <div class="flex items-center space-x-6">
+                <a href="account.php" class="hidden md:flex items-center space-x-2 text-gray-700 hover:text-teal-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    <span class="text-sm font-medium">Account</span>
+                </a>
+                <a href="cart.php" class="flex items-center space-x-2 text-gray-700 hover:text-teal-600 relative">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    <?php if ($cart_item_count > 0): ?>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                        <?php echo $cart_item_count; ?>
+                    </span>
+                    <?php endif; ?>
+                    <span class="text-sm font-medium hidden md:inline">Cart</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Navigation with Dynamic Categories -->
+        <nav class="mt-4 border-t pt-4">
+            <ul class="flex items-center space-x-8 text-sm font-medium">
+                <li><a href="index.php" class="text-teal-600 hover:text-teal-700">Home</a></li>
+                <li><a href="shop.php" class="text-gray-700 hover:text-teal-600">Shop All</a></li>
+                <li class="relative group">
+                    <a href="#" class="text-gray-700 hover:text-teal-600 flex items-center">
+                        Categories
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </a>
+                    <div class="absolute hidden group-hover:block bg-white shadow-lg rounded-lg mt-2 py-2 w-48">
+                        <?php foreach ($nav_categories as $category): ?>
+                            <a href="shop.php?category=<?php echo urlencode($category); ?>" class="block px-4 py-2 hover:bg-gray-100"><?php echo htmlspecialchars($category); ?></a>
+                        <?php endforeach; ?>
+                         <a href="shop.php" class="block px-4 py-2 font-bold hover:bg-gray-100">View All...</a>
+                    </div>
+                </li>
+                <li><a href="about.php" class="text-gray-700 hover:text-teal-600">About</a></li>
+                <li><a href="contact.php" class="text-gray-700 hover:text-teal-600">Contact</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
